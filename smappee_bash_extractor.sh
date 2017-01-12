@@ -17,7 +17,9 @@ DOMOTICZ_WATTS_IDX="11"
 DOMOTICZ_VOLTS_IDX="12"
 
 # Ampere (1 phase)
-DOMOTICZ_AMPS_IDX="13"
+DOMOTICZ_AMPSL1_IDX="15"
+DOMOTICZ_AMPSL2_IDX="16"
+DOMOTICZ_AMPSL3_IDX="17"
 
 # Custom sensor (cos phi)
 DOMOTICZ_COSF_IDX="14"
@@ -42,27 +44,37 @@ fi
 
 VOLTS=`echo $SMAP |sed -e 's|.*voltage=\(.*\)|\1|' -e 's|\(.\{1,5\}\).*|\1|'`
 WATTS=`echo $SMAP |sed -e 's|.* activePower=\(.*\)|\1|' -e 's|\(.\{1,6\}\).*|\1|'`
-AMPS=`echo $SMAP |sed -e 's|.*urrent=\(.*\)|\1|' -e 's|\(.\{1,4\}\).*|\1|'`
+AMPSL1=`echo $SMAP |sed -e 's|.*1:<BR>\tcurrent=\(.*\)|\1|' -e 's|\(.\{1,4\}\).*|\1|'`
+AMPSL2=`echo $SMAP |sed -e 's|.*2:<BR>\tcurrent=\(.*\)|\1|' -e 's|\(.\{1,4\}\).*|\1|'`
+AMPSL3=`echo $SMAP |sed -e 's|.*3:<BR>\tcurrent=\(.*\)|\1|' -e 's|\(.\{1,4\}\).*|\1|'`
 COSF=`echo $SMAP |sed -e 's|.* cosfi=\(.*\)|\1|' -e 's|\(.\{1,2\}\).*|\1|'`
 else
 VOLTS=`cat $TMPDIR/volts`
 WATTS=`cat $TMPDIR/watts`
-AMPS=`cat $TMPDIR/amps`
+AMPSL1=`cat $TMPDIR/ampsL1`
+AMPSL2=`cat $TMPDIR/ampsL2`
+AMPSL3=`cat $TMPDIR/ampL3`
 COSF=`cat $TMPDIR/cosf`
 fi
 # just in case there's still nothing there...
 if [ -z $VOLTS ]; then VOLTS=230; fi
 if [ -z $WATTS ]; then WATTS=460; fi
-if [ -z $AMPS ]; then AMPS=2; fi
+if [ -z $AMPSL1 ]; then AMPS=2; fi
+if [ -z $AMPSL2 ]; then AMPS=2; fi
+if [ -z $AMPSL3 ]; then AMPS=2; fi
 if [ -z $COSF ]; then COSF=1; fi
 # Save this. If Smappee is not in mood at next run, we'll use these instead.
 echo $VOLTS > $TMPDIR/volts
 echo $WATTS > $TMPDIR/watts
-echo $AMPS  > $TMPDIR/amps
+echo $AMPSL1  > $TMPDIR/ampsL1
+echo $AMPSL2  > $TMPDIR/ampsL2
+echo $AMPSL3  > $TMPDIR/ampsL3
 echo $COSF  > $TMPDIR/cosf
 # Put the voltage, amps and cos phi to Domoticz
 curl -k "${DOMOTICZ_URL}/json.htm?type=command&param=udevice&idx=${DOMOTICZ_VOLTS_IDX}&nvalue=0&svalue=${VOLTS}"
-curl -k "${DOMOTICZ_URL}/json.htm?type=command&param=udevice&idx=${DOMOTICZ_AMPS_IDX}&nvalue=0&svalue=${AMPS}"
+curl -k "${DOMOTICZ_URL}/json.htm?type=command&param=udevice&idx=${DOMOTICZ_AMPSL1_IDX}&nvalue=0&svalue=${AMPSL1}"
+curl -k "${DOMOTICZ_URL}/json.htm?type=command&param=udevice&idx=${DOMOTICZ_AMPSL2_IDX}&nvalue=0&svalue=${AMPSL2}"
+curl -k "${DOMOTICZ_URL}/json.htm?type=command&param=udevice&idx=${DOMOTICZ_AMPSL3_IDX}&nvalue=0&svalue=${AMPSL3}"
 curl -k "${DOMOTICZ_URL}/json.htm?type=command&param=udevice&idx=${DOMOTICZ_COSF_IDX}&nvalue=0&svalue=${COSF}"
 # CUM is the cumulative watthour value
 # Domoticz wants watthours, so that's why watthour
